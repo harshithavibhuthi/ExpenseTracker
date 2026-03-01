@@ -7,7 +7,7 @@ import statistics
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postpinky@localhost:5432/expense_tracker"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:YOURPASSWORD@localhost:5432/expense_tracker"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
