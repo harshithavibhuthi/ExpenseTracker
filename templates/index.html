@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="brand">
+            <div class="logo">₹</div>
+            <div>
+                <div class="title">Expense Dashboard</div>
+                <div class="subtitle">Track • Analyze • Control</div>
+            </div>
+        </div>
+
+        <div class="topbar-actions">
+            <a class="btn btn-ghost" href="/export">Export CSV</a>
+            <button class="btn btn-primary" id="themeToggle" type="button">🌙 Dark</button>
+        </div>
+    </div>
+
+    {% if error_message %}
+    <div class="alert alert-error">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
+    <!-- Summary Cards -->
+    <div class="grid-3">
+        <div class="card">
+            <div class="card-label">Total Expense</div>
+            <div class="card-value">₹{{ "%.2f"|format(total) }}</div>
+        </div>
+
+        <div class="card">
+            <div class="card-label">Total Entries</div>
+            <div class="card-value">{{ expenses|length }}</div>
+        </div>
+
+        <div class="card">
+            <div class="card-label">Categories</div>
+            <div class="card-value">{{ category_totals|length }}</div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="grid-main">
+        <!-- Add Expense -->
+        <div class="card">
+            <div class="section-title">Add Expense</div>
+
+            <form method="POST" action="/" class="form">
+                <div class="form-row">
+                    <label>Expense Name</label>
+                    <input type="text" name="title" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Amount</label>
+                    <input type="number" name="amount" required>
+                </div>
+
+                <div class="form-row">
+                    <label>Category</label>
+                    <select name="category" required>
+                        <option value="Entertainment & Shopping">Entertainment & Shopping</option>
+                        <option value="Housing & Utilities">Housing & Utilities</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Food & Groceries">Food & Groceries</option>
+                        <option value="Transport & Travel">Transport & Travel</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label>Date </label>
+                    <div class="date-row">
+                        <select name="month" required>
+                            <option value="">Month</option>
+                            <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option>
+                            <option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option>
+                            <option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option>
+                            <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                        </select>
+
+                        <select name="day" required>
+                            <option value="">Day</option>
+                            {% for d in range(1, 32) %}
+                            <option value="{{ '%02d'|format(d) }}">{{ d }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-full" type="submit">Add Expense</button>
+            </form>
+        </div>
+
+        <!-- Charts -->
+        <div class="card">
+            <div class="section-title">Analytics</div>
+
+            <div class="charts-2">
+                <div class="chart-box">
+                    <div class="chart-title">Category Distribution</div>
+                    <div class="chart-canvas">
+                        <!-- IMPORTANT IDs -->
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                    <div id="pieEmpty" class="empty-note" style="display:none;">
+                        Add expenses to see the pie chart.
+                    </div>
+                </div>
+
+                <div class="chart-box">
+                    <div class="chart-title">Spending by MM-DD</div>
+                    <div class="chart-canvas">
+                        <canvas id="dmChart"></canvas>
+                    </div>
+                    <div id="barEmpty" class="empty-note" style="display:none;">
+                        Add expenses to see the bar chart.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Table -->
+    <div class="card">
+        <div class="table-head">
+            <div class="section-title">Expense List</div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>MM-DD</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr {% if expense.id in anomalies %} class="row-anomaly" {% endif %}>
+                        <td>{{ expense.title }}</td>
+                        <td>₹{{ "%.2f"|format(expense.amount) }}</td>
+                        <td>{{ expense.category }}</td>
+                        <td>{{ expense.date.strftime("%m-%d") }}</td>
+                        <td class="actions">
+                            <a class="link" href="/edit/{{ expense.id }}">Edit</a>
+                            <span class="dot">•</span>
+                            <a class="link danger" href="/delete/{{ expense.id }}">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pass data to JS safely -->
+<script type="application/json" id="categoryData">{{ category_totals | tojson }}</script>
+<script type="application/json" id="dmData">{{ dm_totals | tojson }}</script>
+
+<script src="{{ url_for('static', filename='charts.js') }}"></script>
+
+</body>
+</html>

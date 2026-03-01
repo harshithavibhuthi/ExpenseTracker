@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Expense</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>Edit Expense</h1>
+
+{% if error_message %}
+<div class="error-box">
+    {{ error_message }}
+</div>
+{% endif %}
+
+<form method="POST" action="/edit/{{ expense.id }}">
+    <label>Expense Name:</label><br>
+    <input type="text" name="title" value="{{ expense.title }}" required><br><br>
+
+    <label>Amount:</label><br>
+    <input type="number" name="amount" value="{{ expense.amount }}" required step="0.01"><br><br>
+
+    <label>Category:</label><br>
+    <select name="category" required>
+        <option value="Entertainment & Shopping" {% if expense.category == "Entertainment & Shopping" %}selected{% endif %}>
+            Entertainment & Shopping
+        </option>
+        <option value="Housing & Utilities" {% if expense.category == "Housing & Utilities" %}selected{% endif %}>
+            Housing & Utilities
+        </option>
+        <option value="Healthcare" {% if expense.category == "Healthcare" %}selected{% endif %}>
+            Healthcare
+        </option>
+        <option value="Food & Groceries" {% if expense.category == "Food & Groceries" %}selected{% endif %}>
+            Food & Groceries
+        </option>
+        <option value="Transport & Travel" {% if expense.category == "Transport & Travel" %}selected{% endif %}>
+            Transport & Travel
+        </option>
+        <option value="Others" {% if expense.category == "Others" %}selected{% endif %}>
+            Others
+        </option>
+    </select><br><br>
+
+    <label>Date (Month + Day):</label><br>
+
+    <!-- Month -->
+    <select name="month" required>
+        <option value="01" {% if expense.date.month == 1 %}selected{% endif %}>Jan</option>
+        <option value="02" {% if expense.date.month == 2 %}selected{% endif %}>Feb</option>
+        <option value="03" {% if expense.date.month == 3 %}selected{% endif %}>Mar</option>
+        <option value="04" {% if expense.date.month == 4 %}selected{% endif %}>Apr</option>
+        <option value="05" {% if expense.date.month == 5 %}selected{% endif %}>May</option>
+        <option value="06" {% if expense.date.month == 6 %}selected{% endif %}>Jun</option>
+        <option value="07" {% if expense.date.month == 7 %}selected{% endif %}>Jul</option>
+        <option value="08" {% if expense.date.month == 8 %}selected{% endif %}>Aug</option>
+        <option value="09" {% if expense.date.month == 9 %}selected{% endif %}>Sep</option>
+        <option value="10" {% if expense.date.month == 10 %}selected{% endif %}>Oct</option>
+        <option value="11" {% if expense.date.month == 11 %}selected{% endif %}>Nov</option>
+        <option value="12" {% if expense.date.month == 12 %}selected{% endif %}>Dec</option>
+    </select>
+
+    <!-- Day -->
+    <select name="day" required>
+        {% for d in range(1, 32) %}
+        <option value="{{ '%02d'|format(d) }}" {% if expense.date.day == d %}selected{% endif %}>
+            {{ d }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+    <button type="submit">Update Expense</button>
+</form>
+
+<p style="text-align:center; margin-top: 15px;">
+    <a href="/">⬅ Back to Home</a>
+</p>
+
+</body>
+</html>
